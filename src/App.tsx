@@ -119,7 +119,7 @@ export const App: React.FC = () => {
           onInputChange={onInputChange}
         />
 
-        {todos?.length !== 0 && (
+        {(todos.length > 0 || tempTodo) && (
           <>
             <TodoList
               todos={todos ?? []}
