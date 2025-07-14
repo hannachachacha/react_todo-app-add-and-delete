@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 
 type Props = {
   handleEmptyTitle: (message: string) => void;
-  handleNewTitle: (newTitle: string) => void;
+  handleNewTitle: (newTitle: string) => Promise<boolean>;
   isLoading: boolean;
 };
 
@@ -18,10 +18,9 @@ export const Header: React.FC<Props> = ({
     inputRef.current?.focus();
   });
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
-    const newTitle = input?.toString().trim();
+    const newTitle = input.trim();
 
     if (!newTitle) {
       handleEmptyTitle('Title should not be empty');
@@ -29,8 +28,12 @@ export const Header: React.FC<Props> = ({
       return;
     }
 
-    handleNewTitle(newTitle);
-  }
+    const success = await handleNewTitle(newTitle);
+
+    if (success) {
+      setInput('');
+    }
+  };
 
   return (
     <header className="todoapp__header">
