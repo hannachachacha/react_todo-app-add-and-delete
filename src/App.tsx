@@ -82,6 +82,7 @@ export const App: React.FC = () => {
         setInput('');
       } catch {
         showError('Unable to add a todo');
+        setTempTodo(null);
       } finally {
         setIsLoading(false);
       }
