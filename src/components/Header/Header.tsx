@@ -1,20 +1,17 @@
-import { useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 type Props = {
   handleEmptyTitle: (message: string) => void;
   handleNewTitle: (newTitle: string) => void;
   isLoading: boolean;
-  input: string;
-  onInputChange: (value: string) => void;
 };
 
 export const Header: React.FC<Props> = ({
   handleEmptyTitle,
   handleNewTitle,
   isLoading,
-  input,
-  onInputChange,
 }) => {
+  const [input, setInput] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -53,7 +50,7 @@ export const Header: React.FC<Props> = ({
           className="todoapp__new-todo"
           placeholder="What needs to be done?"
           value={input}
-          onChange={e => onInputChange(e.target.value)}
+          onChange={e => setInput(e.target.value)}
           disabled={isLoading}
         />
       </form>

@@ -16,7 +16,6 @@ export const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tempTodo, setTempTodo] = useState<Todo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [input, setInput] = useState('');
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
 
   const errorTimeout = useRef<number | null>(null);
@@ -36,10 +35,6 @@ export const App: React.FC = () => {
 
     setError(message);
     errorTimeout.current = window.setTimeout(() => setError(null), 3000);
-  }
-
-  function onInputChange(value: string) {
-    setInput(value);
   }
 
   const deleteTodo = async (id: number) => {
@@ -62,33 +57,34 @@ export const App: React.FC = () => {
     await Promise.all(completedTodos.map(todo => deleteTodo(todo.id)));
   }
 
-  function handleNewTitle(title: string) {
+  function handleNewTitle(title: string): Promise<boolean> {
     const newTodo = {
       id: 0,
       userId: USER_ID,
-      title: title,
+      title,
       completed: false,
     };
 
+    setIsLoading(true);
     setTempTodo(newTodo);
 
-    const addTodo = async () => {
-      try {
-        setIsLoading(true);
-        const response = await client.post<Todo>(`/todos`, newTodo);
-
+    return client
+      .post<Todo>(`/todos`, newTodo)
+      .then(response => {
         setTodos(prevTodos => [...prevTodos, response]);
         setTempTodo(null);
-        setInput('');
-      } catch {
+
+        return true;
+      })
+      .catch(() => {
         showError('Unable to add a todo');
         setTempTodo(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    addTodo();
+        return false;
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   }
 
   const activeTodos = todos?.filter(todo => !todo.completed).length;
@@ -116,8 +112,6 @@ export const App: React.FC = () => {
           handleEmptyTitle={showError}
           handleNewTitle={handleNewTitle}
           isLoading={isLoading}
-          input={input}
-          onInputChange={onInputChange}
         />
 
         {(todos.length > 0 || tempTodo) && (
